@@ -86,10 +86,10 @@ cdepl_script_cluster_node_setup()
 cdepl_script_deploy()
 {
 	# Initilize zookeeper deployment
-	cdepl_app_zookeeper_init "$DXRAFT_PATH"
+	cdepl_app_dxraft_init "$DXRAFT_PATH"
 
     # Kill any still running instances from previous deployments
-	cdepl_app_zookeeper_cleanup 0 $((TOTAL_NODES - 1))
+	cdepl_app_dxraft_node_cleanup 0 $((TOTAL_NODES - 1))
 }
 
 cdepl_script_cleanup()

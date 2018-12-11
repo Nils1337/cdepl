@@ -120,7 +120,7 @@ cdepl_script_deploy()
 	cdepl_app_dxraft_node_cleanup 0 $((TOTAL_NODES - 1))
 
 	# Start all nodes
-	cdepl_app_dxram_start_node 0 $((TOTAL_NODES - 1))
+	cdepl_app_dxraft_start_node 0 $((TOTAL_NODES - 1))
 }
 
 ##

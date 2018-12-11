@@ -6,13 +6,13 @@ __DXRAFT_JAR_PATH=""
 cdepl_app_dxraft_init() {
     local path=$1
 
-    __DXRAFT_CONFIG_PATH="$path/config"
+    __DXRAFT_CONFIG_PATH="$path/config/config.json"
     __DXRAFT_JAR_PATH="$path/build/libs/dxraft-0.1.jar"
 
     util_log "[dxraft] Initialized: $path"
 }
 
-cdepl_app_dxraft_start()
+cdepl_app_dxraft_start_node()
 {
 	local node_range_start=$1
 	local node_range_end=$2
@@ -35,7 +35,7 @@ cdepl_app_dxraft_start()
 	fi
 }
 
-cdepl_app_dxraft_cleanup()
+cdepl_app_dxraft_node_cleanup()
 {
 	local node_range_start=$1
 	local node_range_end=$2
