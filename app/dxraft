@@ -1,15 +1,11 @@
 #!/bin/bash
 
-__DXRAFT_CONFIG_PATH=""
-__DXRAFT_JAR_PATH=""
+DXRAFT_PATH=""
 
 cdepl_app_dxraft_init() {
-    local path=$1
+    DXRAFT_PATH=$1
 
-    __DXRAFT_CONFIG_PATH="$path/config/config.json"
-    __DXRAFT_JAR_PATH="$path/build/libs/dxraft-0.1.jar"
-
-    util_log "[dxraft] Initialized: $path"
+    util_log "[dxraft] Initialized: $DXRAFT_PATH"
 }
 
 cdepl_app_dxraft_start_node()
@@ -60,7 +56,7 @@ __cdepl_app_dxraft_start_node()
     local ip=$(cdepl_cluster_resolve_node_to_ip "$1")
     local join=$2
 
-    local cmd="nohup java -Ddxraft.config=$__DXRAFT_CONFIG_PATH -Ddxraft.m_ip=$ip -jar $__DXRAFT_JAR_PATH &"
+    local cmd="nohup $DXRAFT_PATH/bin/dxraft-server.sh &"
 
     if [ "$join" = true ] ; then
         cmd="$cmd -join"
