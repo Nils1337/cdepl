@@ -1,0 +1,109 @@
+#!/bin/bash
+
+__DXRAFT_CONFIG_PATH=""
+__DXRAFT_JAR_PATH=""
+
+cdepl_app_dxraft_init() {
+    local path=$1
+
+    __DXRAFT_CONFIG_PATH="$path/config"
+    __DXRAFT_JAR_PATH="$path/build/libs/dxraft-0.1.jar"
+
+    util_log "[dxraft] Initialized: $path"
+}
+
+cdepl_app_dxraft_start()
+{
+	local node_range_start=$1
+	local node_range_end=$2
+
+	if [ "$node_range_end" ]; then
+		local pids=""
+
+		for node in $(seq "$node_range_start" "$node_range_end"); do
+			if [ "$node" = "$node_range_start" ] ; then
+			    __cdepl_app_dxraft_start_node "$node" false &
+			else
+			    __cdepl_app_dxraft_start_node "$node" true &
+			fi
+			pids="$pids $!"
+		done
+
+		wait $pids
+	else
+		__cdepl_app_dxraft_start_node "$node_range_start" false
+	fi
+}
+
+cdepl_app_dxraft_cleanup()
+{
+	local node_range_start=$1
+	local node_range_end=$2
+
+	if [ "$node_range_end" ]; then
+		local pids=""
+
+		for node in $(seq "$node_range_start" "$node_range_end"); do
+			__cdepl_app_dxraft_cleanup "$node" &
+			pids="$pids $!"
+		done
+
+		wait $pids
+	else
+		__cdepl_app_dxraft_cleanup "$node_range_start"
+	fi
+}
+
+__cdepl_app_dxraft_start_node()
+{
+    local node=$1
+    local ip=$(cdepl_cluster_resolve_node_to_ip "$1")
+    local join=$2
+
+    local cmd="nohup java -Ddxraft.config=$__DXRAFT_CONFIG_PATH -Ddxraft.m_ip=$ip -jar $__DXRAFT_JAR_PATH &"
+
+    if [ "$join" = true ] ; then
+        cmd="$cmd -join"
+    fi
+
+    cdepl_cluster_node_cmd "$node" "$cmd"
+}
+
+__cdepl_app_dxraft_get_instances_pids()
+{
+	local node=$1
+
+	cdepl_cluster_node_cmd "$node" "pgrep -f 'java.*-jar.*dxraft-0.1.jar'"
+}
+
+__cdepl_app_dxraft_cleanup()
+{
+	local node=$1
+
+	util_log "[$node][dxraft] Cleanup..."
+
+	local pid=$(__cdepl_app_dxraft_get_instances_pids "$node")
+
+	if [ "$pid" ]; then
+		# If we or someone else left some garbage processes on the node multiple
+		# pids are returned
+		for i in $pid; do
+			local kill_out=$(cdepl_cluster_node_cmd "$node" "kill -9 $i 2>&1")
+
+			if [ "$?" = "0" ] && [ ! "$kill_out" ]; then
+				util_log "[$node][dxraft] Killed (pid: $i)"
+			elif [ "$kill_out" ]; then
+				# Probably operation not permitted, try root
+				cdepl_cluster_node_cmd "$node" "sudo -P kill -9 $i > /dev/null 2>&1"
+
+				if [ "$?" = "0" ]; then
+					util_log "[$node][dxraft] Killed (root) (pid: $i)"
+				elif [ "$?" != "1" ]; then
+					util_log_warn "[$node][dxraft] Killing (root) $i failed, DXRAM instance(s) might stay alive"
+				fi
+			elif [ "$?" != "1" ]; then
+				util_log_warn "[$node][dxraft] Killing $i failed, DXRAM instance(s) might stay alive"
+			fi
+		done
+	fi
+}

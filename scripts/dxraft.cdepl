@@ -1,0 +1,138 @@
+#
+# Copyright (C) 2018 Heinrich-Heine-Universitaet Duesseldorf, Institute of Computer Science, Department Operating Systems
+#
+# This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+#
+
+#!/bin/bash
+
+##
+# This file is a bare skeleton for any deploy scripts you implement. The
+# functions included are required for the framework to execute deployment
+# of your application.
+#
+# Every function below can be in separate files as well which allows you to
+# combine different cluster configrations with application deployments. Just
+# source them for your final deploy script.
+##
+
+# Cluster settings set in cdepl_script_process_cmd_args
+TOTAL_NODES=""
+CLUSTER_TYPE=""
+CLUSTER_USER=""
+CLUSTER_TYPE_INIT_ARGS=""
+
+# Cluster type and some properties for hilbert
+CLUSTER_TYPE=""
+CLUSTER_USER=""
+CLUSTER_TYPE_INIT_ARGS=""
+
+# Parameters for zookeeper
+DXRAFT_PATH=""
+ZK_PORT=2181
+
+cdepl_script_process_cmd_args()
+{
+	local total_nodes="$1"
+	local cluster_type="$2"
+	local cluster_user="$3"
+	local cluster_type_init_args="${@:4}"
+
+	if [ ! "$total_nodes" ]; then
+		util_log_error "Missing argument 'total_nodes'"
+		util_log_error_and_exit "Usage: <total_nodes> <cluster_type> <cluster_user> [init args for cluster type...]"
+	fi
+
+	if [ ! "$cluster_type" ]; then
+		util_log_error "Missing argument 'cluster_type'"
+		util_log_error_and_exit "Usage: <total_nodes> <cluster_type> <cluster_user> [init args for cluster type...]"
+	fi
+
+	if [ ! "$cluster_user" ]; then
+		util_log_error "Missing argument 'cluster_user'"
+		util_log_error_and_exit "Usage: <total_nodes> <cluster_type> <cluster_user> [init args for cluster type...]"
+	fi
+
+	TOTAL_NODES="$total_nodes"
+	CLUSTER_TYPE="$cluster_type"
+	CLUSTER_USER="$cluster_user"
+	CLUSTER_TYPE_INIT_ARGS="$cluster_type_init_args"
+
+    DXRAFT_PATH="/home/$CLUSTER_USER/dxraft"
+}
+
+##
+# Cluster/node setup is the first phase during deployment.
+#
+# Setup your cluster environment by defining what type of cluster you want to
+# deploy to and declare the resources you want to use for allocations.
+# Resource allocation might depend on the type of cluster you use.
+#
+# If you want to deploy on multiple cluster types, you might have to differ them
+# if you have different amounts of resources available. Otherwise, the setup
+# can be used on different cluster types without changes.
+##
+cdepl_script_cluster_node_setup()
+{
+	# Set the log level to output debug info
+	util_log_set_level "$UTIL_LOG_LEVEL_DEBUG"
+
+	# Init the cluster environment to deploy to
+	cdepl_cluster_init $CLUSTER_TYPE $CLUSTER_USER $CLUSTER_TYPE_INIT_ARGS
+
+	# Load application modules of apps you want to deploy
+	cdepl_cluster_app_load "dxraft"
+
+	# Alloc total number of nodes for this deployment
+	cdepl_cluster_node_alloc $TOTAL_NODES
+
+	# Specify the (minimum amount of) resources we need on node 0
+#	cdepl_cluster_node_mem 0 1024
+#	cdepl_cluster_node_cpus 0 1
+	for i in $(seq 0 $((TOTAL_NODES - 1))); do
+		cdepl_cluster_node_excl $i
+	done
+
+	# Set our output path for log files and configurations
+	# for the application deployed
+	cdepl_deploy_setup_out_path $CLUSTER_USER
+}
+
+##
+# Third phase, application deployment
+#
+# Now that the environment is set up, deploy your application and execute your
+# benchmarks, tests etc.
+##
+cdepl_script_deploy()
+{
+	# Initilize zookeeper deployment
+	cdepl_app_dxraft_init "$DXRAFT_PATH"
+
+	# Kill any still running instances from previous deployments
+	cdepl_app_dxraft_node_cleanup 0 $((TOTAL_NODES - 1))
+
+	# Start all nodes
+	cdepl_app_dxram_start_node 0 $((TOTAL_NODES - 1))
+}
+
+##
+# Fourth phase, deployment cleanup (might be optional)
+#
+# Cleanup the cluster after deployment if you have no intention of leaving the
+# deployed application(s) running forever.
+#
+# Note: This is also called if cdepl_cluster_cleanup_on_error is enabled and
+# cdepl failed to execute any deployment step.
+##
+cdepl_script_cleanup()
+{
+	local stub=""
+}
