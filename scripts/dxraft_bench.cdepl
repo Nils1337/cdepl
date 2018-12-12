@@ -87,7 +87,7 @@ cdepl_script_cluster_node_setup()
 	cdepl_cluster_init $CLUSTER_TYPE $CLUSTER_USER $CLUSTER_TYPE_INIT_ARGS
 
 	# Load application modules of apps you want to deploy
-	cdepl_cluster_app_load "dxraft"
+	cdepl_cluster_app_load "dxraft_bench"
 
 	# Alloc total number of nodes for this deployment
 	cdepl_cluster_node_alloc $TOTAL_NODES
@@ -110,13 +110,16 @@ cdepl_script_cluster_node_setup()
 cdepl_script_deploy()
 {
 	# Initialize dxraft deployment
-	cdepl_app_dxraft_init "$DXRAFT_PATH"
+	cdepl_app_dxraft_bench_init "$DXRAFT_PATH"
 
 	# Kill any still running instances from previous deployments
-	cdepl_app_dxraft_node_cleanup 0 $((TOTAL_NODES - 1))
+	cdepl_app_dxraft_bench_init 0 $((TOTAL_NODES - 1))
 
 	# Start all nodes
-	cdepl_app_dxraft_start_node 0 $((TOTAL_NODES - 1))
+	cdepl_app_dxraft_bench_start_node 0 $((TOTAL_NODES - 1))
+
+	# Wait for execution to finish
+	cdepl_app_dxraft_bench_node_wait_finished 0 $((TOTAL_NODES - 1))
 }
 
 ##

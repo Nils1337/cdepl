@@ -63,7 +63,7 @@ __cdepl_app_dxraft_start_node()
     local join=$2
 
 
-    local cmd="nohup $DXRAFT_DIR/bin/dxraft-server.sh"
+    local cmd="nohup $DXRAFT_DIR/bin/dxraft-server.sh -Dm_ip=$ip"
 
     if [ "$join" = true ] ; then
         cmd="$cmd -join"
@@ -107,10 +107,10 @@ __cdepl_app_dxraft_cleanup()
 				if [ "$?" = "0" ]; then
 					util_log "[$node][dxraft] Killed (root) (pid: $i)"
 				elif [ "$?" != "1" ]; then
-					util_log_warn "[$node][dxraft] Killing (root) $i failed, DXRAM instance(s) might stay alive"
+					util_log_warn "[$node][dxraft] Killing (root) $i failed, DXRaft instance(s) might stay alive"
 				fi
 			elif [ "$?" != "1" ]; then
-				util_log_warn "[$node][dxraft] Killing $i failed, DXRAM instance(s) might stay alive"
+				util_log_warn "[$node][dxraft] Killing $i failed, DXRaft instance(s) might stay alive"
 			fi
 		done
 	fi
