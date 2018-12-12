@@ -118,10 +118,10 @@ cdepl_script_cluster_node_setup()
 cdepl_script_deploy()
 {
 	# Initialize dxraft deployment
-	cdepl_app_dxraft_bench_init "$DXRAFT_PATH"
+	cdepl_app_dxraft_bench_init "$DXRAFT_PATH" "$ITERATION_COUNT" "$READ_PERCENTAGE"
 
 	# Start all nodes
-	cdepl_app_dxraft_bench_start_node 0 $((TOTAL_NODES - 1)) "$ITERATION_COUNT" "$READ_PERCENTAGE"
+	cdepl_app_dxraft_bench_start_node 0 $((TOTAL_NODES - 1))
 
 	# Wait for execution to finish
 	cdepl_app_dxraft_bench_node_wait_finished 0 $((TOTAL_NODES - 1))

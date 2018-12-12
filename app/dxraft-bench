@@ -4,9 +4,13 @@ __DXRAFT_DIR=""
 __DXRAFT_OUT_DIR=""
 __DXRAFT_OUT_LOG_DIR=""
 __DXRAFT_RESULT_DIR=""
+__DXRAFT_BENCH_ITER_COUNT=""
+__DXRAFT_BENCH_READ_PERCENTAGE=""
 
 cdepl_app_dxraft_bench_init() {
     local path=$1
+    __DXRAFT_BENCH_ITER_COUNT=$2
+    __DXRAFT_BENCH_READ_PERCENTAGE=$3
 
 	__DXRAFT_DIR="$(cdepl_cluster_node_cmd 0 "readlink -f $path")"
 	__DXRAFT_OUT_DIR="${__DEPLOY_CUR_OUT_PATH}/dxraft_bench"
@@ -94,13 +98,12 @@ cdepl_app_dxraft_bench_node_wait_finished()
 __cdepl_app_dxraft_bench_start_node()
 {
     local node=$1
-    local iteration_count=$2
-    local read_percentage=$3
+
 
     local logfile="$__DXRAFT_OUT_LOG_DIR/bench-$node.log"
     local resultfile="$__DXRAFT_RESULT_DIR/result-$node.csv"
 
-    local cmd="nohup $__DXRAFT_DIR/bin/dxraft-bench.sh $iteration_count $read_percentage -Ddxraft.bench.result=$resultfile > $logfile 2>&1 &"
+    local cmd="nohup $__DXRAFT_DIR/bin/dxraft-bench.sh $__DXRAFT_BENCH_ITER_COUNT $__DXRAFT_BENCH_READ_PERCENTAGE -Ddxraft.bench.result=$resultfile > $logfile 2>&1 &"
 
 	util_log "[$node][dxraft_bench] Starting dxraft: cmd=$cmd"
 
