@@ -21,9 +21,9 @@ cdepl_app_dxraft_bench_start_node()
 			util_log "Starting node dxraft on node $node"
 
 			if [ "$node" = "$node_range_start" ] ; then
-			    __cdepl_app_dxraft_start_node "$node" &
+			    __cdepl_app_dxraft_bench_start_node "$node" &
 			else
-			    __cdepl_app_dxraft_start_node "$node" &
+			    __cdepl_app_dxraft_bench_start_node "$node" &
 			fi
 
 			pids="$pids $!"
@@ -32,7 +32,7 @@ cdepl_app_dxraft_bench_start_node()
 
 		wait $pids
 	else
-		__cdepl_app_dxraft_start_node "$node_range_start" false
+		__cdepl_app_dxraft_bench_start_node "$node_range_start" false
 	fi
 }
 
@@ -52,7 +52,7 @@ cdepl_app_dxraft_bench_node_cleanup()
 
 		wait $pids
 	else
-		__cdepl_app_dxraft_cleanup "$node_range_start"
+		__cdepl_app_dxraft_bench_cleanup "$node_range_start"
 	fi
 }
 
@@ -72,7 +72,7 @@ cdepl_app_dxraft_bench_node_wait_finished()
 
 		wait $pids
 	else
-		__cdepl_app_dxraft_cleanup "$node_range_start"
+		__cdepl_app_dxraft_bench_cleanup "$node_range_start"
 	fi
 }
 
@@ -97,9 +97,9 @@ __cdepl_app_dxraft_bench_get_instances_pids()
 __cdepl_app_dxraft_bench_wait_finished()
 {
     local node=$1
-    
+
     local pid=$(__cdepl_app_dxraft_bench_get_instances_pids "$node")
-    
+
     if [ "$pid" ]; then
     	cdepl_cluster_node_cmd "$node" "wait $pid"
     	util_log "[$node][dxraft_bench] Benchmark finished"
