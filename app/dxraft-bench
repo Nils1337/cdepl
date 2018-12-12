@@ -95,8 +95,9 @@ __cdepl_app_dxraft_bench_start_node()
 {
     local node=$1
     local logfile="$__DXRAFT_OUT_LOG_DIR/bench-$node.log"
+    local resultfile="$__DXRAFT_RESULT_DIR/result-$node.csv"
 
-    local cmd="nohup $DXRAFT_DIR/bin/dxraft-bench.sh -Ddxraft.bench.result=$__DXRAFT_RESULT_DIR > $logfile 2>&1 &"
+    local cmd="nohup $__DXRAFT_DIR/bin/dxraft-bench.sh -Ddxraft.bench.result=$resultfile > $logfile 2>&1 &"
 
 	util_log "[$node][dxraft_bench] Starting dxraft: cmd=$cmd"
 
