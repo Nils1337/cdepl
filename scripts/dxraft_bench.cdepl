@@ -87,7 +87,7 @@ cdepl_script_cluster_node_setup()
 	cdepl_cluster_init $CLUSTER_TYPE $CLUSTER_USER $CLUSTER_TYPE_INIT_ARGS
 
 	# Load application modules of apps you want to deploy
-	cdepl_cluster_app_load "dxraft_bench"
+	cdepl_cluster_app_load "dxraft-bench"
 
 	# Alloc total number of nodes for this deployment
 	cdepl_cluster_node_alloc $TOTAL_NODES
