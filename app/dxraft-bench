@@ -17,17 +17,12 @@ cdepl_app_dxraft_bench_start_node()
 		local pids=""
 
 		for node in $(seq "$node_range_start" "$node_range_end"); do
-
-			util_log "Starting node dxraft on node $node"
-
 			if [ "$node" = "$node_range_start" ] ; then
 			    __cdepl_app_dxraft_bench_start_node "$node" &
 			else
 			    __cdepl_app_dxraft_bench_start_node "$node" &
 			fi
-
 			pids="$pids $!"
-			util_log "PIDs: $pids"
 		done
 
 		wait $pids
@@ -45,7 +40,6 @@ cdepl_app_dxraft_bench_node_cleanup()
 		local pids=""
 
 		for node in $(seq "$node_range_start" "$node_range_end"); do
-			util_log "cleaning up node $node"
 			__cdepl_app_dxraft_bench_cleanup "$node" &
 			pids="$pids $!"
 		done

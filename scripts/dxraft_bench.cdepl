@@ -112,9 +112,6 @@ cdepl_script_deploy()
 	# Initialize dxraft deployment
 	cdepl_app_dxraft_bench_init "$DXRAFT_PATH"
 
-	# Kill any still running instances from previous deployments
-	cdepl_app_dxraft_bench_init 0 $((TOTAL_NODES - 1))
-
 	# Start all nodes
 	cdepl_app_dxraft_bench_start_node 0 $((TOTAL_NODES - 1))
 
