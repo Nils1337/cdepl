@@ -27,42 +27,50 @@
 TOTAL_NODES=""
 CLUSTER_TYPE=""
 CLUSTER_USER=""
-CLUSTER_TYPE_INIT_ARGS=""
-
-# Cluster type and some properties for hilbert
-CLUSTER_TYPE=""
-CLUSTER_USER=""
-CLUSTER_TYPE_INIT_ARGS=""
-
-# Parameters for zookeeper
 DXRAFT_PATH=""
+
+ITERATION_COUNT=""
+READ_PERCENTAGE=""
+
 
 cdepl_script_process_cmd_args()
 {
 	local total_nodes="$1"
 	local cluster_type="$2"
 	local cluster_user="$3"
-	local cluster_type_init_args="${@:4}"
+	local iteration_count="$4"
+	local read_percentage="$5"
 
 	if [ ! "$total_nodes" ]; then
 		util_log_error "Missing argument 'total_nodes'"
-		util_log_error_and_exit "Usage: <total_nodes> <cluster_type> <cluster_user> [init args for cluster type...]"
+		util_log_error_and_exit "Usage: <total_nodes> <cluster_type> <cluster_user> <iteration_count> <read_percentage> [init args for cluster type...]"
 	fi
 
 	if [ ! "$cluster_type" ]; then
 		util_log_error "Missing argument 'cluster_type'"
-		util_log_error_and_exit "Usage: <total_nodes> <cluster_type> <cluster_user> [init args for cluster type...]"
+		util_log_error_and_exit "Usage: <total_nodes> <cluster_type> <cluster_user> <iteration_count> <read_percentage> [init args for cluster type...]"
 	fi
 
 	if [ ! "$cluster_user" ]; then
 		util_log_error "Missing argument 'cluster_user'"
-		util_log_error_and_exit "Usage: <total_nodes> <cluster_type> <cluster_user> [init args for cluster type...]"
+		util_log_error_and_exit "Usage: <total_nodes> <cluster_type> <cluster_user> <iteration_count> <read_percentage> [init args for cluster type...]"
+	fi
+
+	if [ ! "$iteration_count" ]; then
+		util_log_error "Missing argument 'iteration_count'"
+		util_log_error_and_exit "Usage: <total_nodes> <cluster_type> <cluster_user> <iteration_count> <read_percentage> [init args for cluster type...]"
+	fi
+
+		if [ ! "$read_percentage" ]; then
+		util_log_error "Missing argument 'read_percentage'"
+		util_log_error_and_exit "Usage: <total_nodes> <cluster_type> <cluster_user> <iteration_count> <read_percentage> [init args for cluster type...]"
 	fi
 
 	TOTAL_NODES="$total_nodes"
 	CLUSTER_TYPE="$cluster_type"
 	CLUSTER_USER="$cluster_user"
-	CLUSTER_TYPE_INIT_ARGS="$cluster_type_init_args"
+	ITERATION_COUNT="$iteration_count"
+    READ_PERCENTAGE="$read_percentage"
 
 	DXRAFT_PATH="/home/$CLUSTER_USER/dxraft"
 }
@@ -113,7 +121,7 @@ cdepl_script_deploy()
 	cdepl_app_dxraft_bench_init "$DXRAFT_PATH"
 
 	# Start all nodes
-	cdepl_app_dxraft_bench_start_node 0 $((TOTAL_NODES - 1))
+	cdepl_app_dxraft_bench_start_node 0 $((TOTAL_NODES - 1)) "$ITERATION_COUNT" "$READ_PERCENTAGE"
 
 	# Wait for execution to finish
 	cdepl_app_dxraft_bench_node_wait_finished 0 $((TOTAL_NODES - 1))
