@@ -65,7 +65,7 @@ cdepl_script_process_cmd_args()
 	CLUSTER_USER="$cluster_user"
 	CLUSTER_TYPE_INIT_ARGS="$cluster_type_init_args"
 
-    DXRAFT_PATH="/home/$CLUSTER_USER/dxraft"
+	DXRAFT_PATH="/home/$CLUSTER_USER/dxraft"
 }
 
 ##
@@ -113,11 +113,13 @@ cdepl_script_cluster_node_setup()
 ##
 cdepl_script_deploy()
 {
-	# Initilize zookeeper deployment
+	# Initilize dxraft deployment
 	cdepl_app_dxraft_init "$DXRAFT_PATH"
 
 	# Kill any still running instances from previous deployments
 	cdepl_app_dxraft_node_cleanup 0 $((TOTAL_NODES - 1))
+
+	util_log "Invoking dxraft_start_node"
 
 	# Start all nodes
 	cdepl_app_dxraft_start_node 0 $((TOTAL_NODES - 1))

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-DXRAFT_PATH=""
+DXRAFT_DIR=""
 
 cdepl_app_dxraft_init() {
-    DXRAFT_PATH=$1
+    DXRAFT_DIR=$1
 
-    util_log "[dxraft] Initialized: $DXRAFT_PATH"
+    util_log "[dxraft] Initialized: $DXRAFT_DIR"
 }
 
 cdepl_app_dxraft_start_node()
@@ -17,12 +17,17 @@ cdepl_app_dxraft_start_node()
 		local pids=""
 
 		for node in $(seq "$node_range_start" "$node_range_end"); do
+
+			util_log "Starting node dxraft on node $node"
+
 			if [ "$node" = "$node_range_start" ] ; then
 			    __cdepl_app_dxraft_start_node "$node" false &
 			else
 			    __cdepl_app_dxraft_start_node "$node" true &
 			fi
+
 			pids="$pids $!"
+			util_log "PIDs: $pids"
 		done
 
 		wait $pids
@@ -40,6 +45,7 @@ cdepl_app_dxraft_node_cleanup()
 		local pids=""
 
 		for node in $(seq "$node_range_start" "$node_range_end"); do
+			util_log "cleaning up node $node"
 			__cdepl_app_dxraft_cleanup "$node" &
 			pids="$pids $!"
 		done
@@ -56,11 +62,16 @@ __cdepl_app_dxraft_start_node()
     local ip=$(cdepl_cluster_resolve_node_to_ip "$1")
     local join=$2
 
-    local cmd="nohup $DXRAFT_PATH/bin/dxraft-server.sh &"
+
+    local cmd="nohup $DXRAFT_DIR/bin/dxraft-server.sh"
 
     if [ "$join" = true ] ; then
         cmd="$cmd -join"
     fi
+
+	cmd="$cmd &"
+
+	util_log "[$node][dxraft] Starting dxraft: cmd=$cmd"
 
     cdepl_cluster_node_cmd "$node" "$cmd"
 }
@@ -81,6 +92,7 @@ __cdepl_app_dxraft_cleanup()
 	local pid=$(__cdepl_app_dxraft_get_instances_pids "$node")
 
 	if [ "$pid" ]; then
+		util_log "Instance found on node $node"
 		# If we or someone else left some garbage processes on the node multiple
 		# pids are returned
 		for i in $pid; do
