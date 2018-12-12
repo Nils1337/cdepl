@@ -66,13 +66,13 @@ cdepl_app_dxraft_bench_node_wait_finished()
 
 		for node in $(seq "$node_range_start" "$node_range_end"); do
 			util_log "cleaning up node $node"
-			__cdepl_app_dxraft_bench_cleanup "$node" &
+			__cdepl_app_dxraft_bench_wait_finished "$node" &
 			pids="$pids $!"
 		done
 
 		wait $pids
 	else
-		__cdepl_app_dxraft_bench_cleanup "$node_range_start"
+		__cdepl_app_dxraft_bench_wait_finished "$node_range_start"
 	fi
 }
 
