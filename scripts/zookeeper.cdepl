@@ -91,11 +91,11 @@ cdepl_script_deploy()
 	cdepl_app_zookeeper_init $ZK_PATH
 
 	# Ensure that no (old) zookeeper instance is running on any node
-	cdepl_app_zookeeper_cleanup 0
+	cdepl_app_zookeeper_cleanup 0 $((TOTAL_NODES - 1))
 
 	# Start zookeeper instance and wait until started
-	cdepl_app_zookeeper_start 0 $ZK_PORT
-	cdepl_app_zookeeper_wait_started 0
+	cdepl_app_zookeeper_start 0 $((TOTAL_NODES - 1)) $ZK_PORT
+	cdepl_app_zookeeper_wait_started 0 $((TOTAL_NODES - 1))
 
 	# Cleanup of failed startups in zookeeper
 	cdepl_app_zookeeper_remove 0 "/dxram"
