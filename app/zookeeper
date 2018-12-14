@@ -55,6 +55,26 @@ cdepl_app_zookeeper_init()
 ##
 cdepl_app_zookeeper_start()
 {
+
+	local node_range_start=$1
+	local node_range_end=$2
+	local port=$3
+
+	if [ "$node_range_end" ]; then
+		local pids=""
+
+		for node in $(seq "$node_range_start" "$node_range_end"); do
+			__cdepl_app_zookeeper_start "$node" "$port" &
+			pids="$pids $!"
+		done
+
+		wait $pids
+	else
+		__cdepl_app_zookeeper_start "$node_range_start" "$port"
+    fi
+}
+
+__cdepl_app_zookeeper_start() {
 	local node=$1
 	local port=$2
 
