@@ -77,7 +77,7 @@ __cdepl_app_dxraft_start_node()
     local logfile="$__DXRAFT_OUT_LOG_DIR/server-$node.log"
 
 
-    local cmd="nohup $__DXRAFT_DIR/bin/dxraft-server.sh -Dm_ip=$ip"
+    local cmd="nohup $__DXRAFT_DIR/bin/dxraft-server.sh -Ddxraft.m_ip=$ip"
 
     if [ "$join" = true ] ; then
         cmd="$cmd -join"
