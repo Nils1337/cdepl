@@ -97,11 +97,12 @@ __cdepl_app_dxraft_wait_started()
 {
 	local node=$1
 
-	local logfile="${__DXRAFT_OUT_DIR}/server-$node.log"
+	local logfile="${__DXRAFT_OUT_LOG_DIR}/server-$node.log"
 
 	util_log "[$node][dxraft] Waiting for startup"
 	local pid
-	while true; do
+	local time=0
+	while [[ $time -lt 10 ]]; do
 		echo -n "."
 
 		local initialized_cluster=$(cdepl_cluster_node_cmd "$node" "cat '$logfile' | grep 'Successfully initialized new cluster'")
@@ -129,8 +130,12 @@ __cdepl_app_dxraft_wait_started()
 			return
 		fi
 
+        time=$((time + 1))
 		sleep 1.0
 	done
+
+    util_log_error "[$node][dxraft] Could not be started. See log file $logfile"
+    return
 }
 
 __cdepl_app_dxraft_start_node()
