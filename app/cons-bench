@@ -91,7 +91,7 @@ __cdepl_app_cons_bench_start()
     fi
 
     cmd="$cmd -Dbench.result=$__BENCH_OUT_RESULT_DIR/result-$node.csv"
-    cmd="$cmd -jar $__BENCH_DIR/build/libs/cons-bench-$__BENCH_VERSION.jar $__BENCH_CONSENSUS_IMPL $__BENCH_ITERATION_COUNT $__BENCH_READ_PERCENTAGE"
+    cmd="$cmd -jar $__BENCH_DIR/build/libs/cons-bench-$__BENCH_VERSION.jar $__BENCH_CONSENSUS_IMPL \"/bench-$node\" $__BENCH_ITERATION_COUNT $__BENCH_READ_PERCENTAGE"
 	cmd="$cmd > $logfile 2>&1 &"
 
 	util_log "[$node][cons-bench] Starting benchmark: cmd=$cmd"
