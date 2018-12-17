@@ -72,8 +72,8 @@ _cdepl_run_application()
     cdepl_app_cons_bench_init "$(cdepl_cluster_application_install_dir)/cons-bench" "dxraft" "$iteration_count" "$read_percentage" "$config_path"
 
 	# Kill any still running instances from previous deployments
-	cdepl_app_cons_bench_cleanup $((cluster_total_nodes - 1 - client_count)) $(($cluster_total_nodes - 1))
+	cdepl_app_cons_bench_cleanup $((cluster_total_nodes - client_count)) $(($cluster_total_nodes - 1))
 
 	# Start all nodes
-	cdepl_app_cons_bench_start $((cluster_total_nodes - 1 - client_count)) $(($cluster_total_nodes - 1))
+	cdepl_app_cons_bench_start $((cluster_total_nodes - client_count)) $(($cluster_total_nodes - 1))
 }
