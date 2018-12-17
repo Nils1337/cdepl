@@ -69,6 +69,70 @@ cdepl_app_dxraft_node_cleanup()
 	fi
 }
 
+##
+# For for a started zookeeper (server) instance to be started
+#
+# $1 node Target node id with started zookeeper (server) instance
+##
+cdepl_app_zookeeper_wait_started()
+{
+	local node_range_start=$1
+	local node_range_end=$2
+
+	if [ "$node_range_end" ]; then
+		local pids=""
+
+		for node in $(seq "$node_range_start" "$node_range_end"); do
+			__cdepl_app_zookeeper_wait_started "$node" &
+			pids="$pids $!"
+		done
+
+		wait $pids
+	else
+		__cdepl_app_zookeeper_wait_started "$node_range_start"
+	fi
+}
+
+__cdepl_app_zookeeper_wait_started()
+{
+	local node=$1
+
+	local logfile="${__DXRAFT_OUT_DIR}/server-$node.log"
+
+	util_log "[$node][dxraft] Waiting for startup"
+	local pid
+	while true; do
+		echo -n "."
+
+		local initialized_cluster=$(cdepl_cluster_node_cmd "$node" "cat '$logfile' | grep 'Successfully initialized new cluster'")
+		local join_cluster=$(cdepl_cluster_node_cmd "$node" "cat '$logfile' | grep 'Successfully joined cluster'")
+
+		local fail_started=$(cdepl_cluster_node_cmd "$node" "cat '$logfile' | grep 'ERROR'")
+
+		if [ "$initialized_cluster" != "" ] || [ "$join_cluster" != "" ]; then
+
+			local pid=$(__cdepl_app_dxraft_get_instances_pids "$node")
+
+			echo ""
+
+			if [ "$pid" = "" ]; then
+				util_log_error "[$node][dxraft] Could not find started process"
+				return
+			fi
+
+			util_log "[$node][dxraft] Started (pid: $pid)"
+
+			break
+		elif [ "$fail_started" != "" ] ; then
+			echo ""
+			util_log_error "[$node][dxraft] Could not be started. See log file $logfile"
+			return
+		fi
+
+		sleep 1.0
+	done
+}
+
 __cdepl_app_dxraft_start_node()
 {
     local node=$1
