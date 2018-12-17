@@ -112,7 +112,7 @@ __cdepl_app_cons_bench_cleanup()
 
 	util_log "[$node][cons-bench] Cleanup..."
 
-	local pid=$(__cdepl_app_dxraft_get_instances_pids "$node")
+	local pid=$(__cdepl_app_cons_bench_get_instances_pids "$node")
 
 	if [ "$pid" ]; then
 		util_log "Instance found on node $node"
