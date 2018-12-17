@@ -10,7 +10,7 @@ _cdepl_run_application()
     local client_count="1"
     local iteration_count="10000"
     local read_percentage="0.5"
-    local config_path="$(cdepl_cluster_application_install_dir)/dxraft/config/config.json"
+    local config_path="$(cdepl_cluster_application_install_dir)/dxraft/config/client-config.json"
 
 	PARAMS=""
 	while (( "$#" )); do
