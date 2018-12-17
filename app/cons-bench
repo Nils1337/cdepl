@@ -27,6 +27,7 @@ cdepl_app_cons_bench_init() {
 
 	# Output path setup
 	cdepl_cluster_file_system_cmd "mkdir -p $__BENCH_OUT_LOG_DIR"
+	cdepl_cluster_file_system_cmd "mkdir -p $__BENCH_OUT_RESULT_DIR"
 
     util_log "[cons-bench] Initialized: $__BENCH_DIR"
 	util_log "[cons-bench] Output: $__BENCH_OUT_LOG_DIR"
