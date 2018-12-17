@@ -122,8 +122,7 @@ __cdepl_app_dxraft_wait_started()
 			fi
 
 			util_log "[$node][dxraft] Started (pid: $pid)"
-
-			break
+			return
 		elif [ "$fail_started" != "" ] ; then
 			echo ""
 			util_log_error "[$node][dxraft] Could not be started. See log file $logfile"
