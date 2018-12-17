@@ -60,10 +60,12 @@ _cdepl_run_application()
 	cdepl_app_zookeeper_init "$(cdepl_cluster_application_install_dir)/zookeeper" $ZK_PORT
 
 	# Kill any still running instances from previous deployments
-	cdepl_app_zookeeper_node_cleanup 0 $(($server_count - 1))
+	cdepl_app_zookeeper_cleanup 0 $(($server_count - 1))
 
 	# Start all nodes
-	cdepl_app_zookeeper_start_node 0 $(($server_count - 1))
+	cdepl_app_zookeeper_start 0 $(($server_count - 1))
+
+	cdepl_app_zookeeper_wait_started 0 $(($server_count - 1))
 
 	local server_list=""
 

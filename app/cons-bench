@@ -7,7 +7,7 @@ __BENCH_OUT_RESULT_DIR=""
 __BENCH_CONSENSUS_IMPL=""
 __BENCH_ITERATION_COUNT=""
 __BENCH_READ_PERCENTAGE=""
-__ZOOKEEPER_SERVER_LIST=""
+__CONFIG_PATH=""
 
 __BENCH_VERSION="1.0-SNAPSHOT"
 
@@ -22,7 +22,7 @@ cdepl_app_cons_bench_init() {
     __BENCH_CONSENSUS_IMPL=$2
     __BENCH_ITERATION_COUNT=$3
     __BENCH_READ_PERCENTAGE=$4
-    __ZOOKEEPER_SERVER_LIST=$5
+    __CONFIG_PATH=$5
 
 
 	# Output path setup
@@ -84,7 +84,9 @@ __cdepl_app_cons_bench_start()
     local cmd="nohup java"
 
     if [ $__BENCH_CONSENSUS_IMPL == "zookeeper" ] ; then
-        cmd="$cmd -Dzookeeper.servers=$__ZOOKEEPER_SERVER_LIST"
+        cmd="$cmd -Dzookeeper.servers=$__CONFIG_PATH"
+    else
+        cmd="$cmd -Ddxraft.config=$__CONFIG_PATH"
     fi
 
     cmd="$cmd -Dbench.result=$__BENCH_OUT_RESULT_DIR/result-$node.csv"
