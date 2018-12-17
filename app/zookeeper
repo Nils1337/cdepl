@@ -26,12 +26,14 @@ __ZOOKEEPER_OUT_PATH=""
 readonly __ZOOKEEPER_LOG_FILE_POSTFIX="_server"
 readonly __ZOOKEEPER_LOG_FILE_CLIENT_POSTFIX="_client"
 readonly __ZOOKEEPER_CONF_FILE="conf/zoo.cfg"
+readonly __ZOOKEEPER_DATA_DIR="/tmp/zookeeper"
 
 readonly __ZOOKEEPER_REQUIRED_ENVIRONMENT="java/1.8"
 
 cdepl_app_zookeeper_init()
 {
 	local path=$1
+	local port=$2
 
 	__ZOOKEEPER_PATH="$(cdepl_cluster_node_cmd 0 "readlink -f $path")"
 	__ZOOKEEPER_OUT_PATH="$(cdepl_run_get_cur_out_path)/zookeeper"
@@ -41,7 +43,9 @@ cdepl_app_zookeeper_init()
 		return
 	fi
 
-	cdepl_cluster_node_cmd "0" "sed -i 's/dataDir=.*/dataDir=\/tmp\/zookeeper/' $__ZOOKEEPER_PATH/$__ZOOKEEPER_CONF_FILE"
+	cdepl_cluster_file_system_cmd "mkdir -p $__ZOOKEEPER_OUT_PATH"
+	cdepl_cluster_node_cmd "0" "sed -i 's/dataDir=.*/dataDir=$__ZOOKEEPER_DATA_DIR' $__ZOOKEEPER_PATH/$__ZOOKEEPER_CONF_FILE"
+    cdepl_cluster_node_cmd "0" "sed -i -e \"s/clientPort=[0-9]*/clientPort=$port/g\" \"${__ZOOKEEPER_PATH}/conf/zoo.cfg\""
 
 	util_log "[zookeeper] Initialized: $__ZOOKEEPER_PATH"
 	util_log "[zookeeper] Output: $__ZOOKEEPER_OUT_PATH"
@@ -82,14 +86,17 @@ __cdepl_app_zookeeper_start() {
 
 	# Delete Zookeeper's previous data directory
 	util_log "[$node][zookeeper] Deleting zookeeper data directory"
-	cdepl_cluster_node_cmd "$node" "rm -rf /tmp/zookeeper"
+	cdepl_cluster_node_cmd "$node" "rm -rf $__ZOOKEEPER_DATA_DIR"
+
+	# create id file
+	cdepl_cluster_node_cmd "$node" "mkdir $__ZOOKEEPER_DATA_DIR"
+	cdepl_cluster_node_cmd "$node" "echo \"$node\" > $__ZOOKEEPER_DATA_DIR/myid"
 
 	util_log "[$node][zookeeper] Starting, logfile: $logfile"
 
-	cdepl_cluster_node_cmd "$node" "mkdir -p $__ZOOKEEPER_OUT_PATH"
 	# Go to zookeeper out dir before execution to get all output, zookeeper
 	# data dir if relative path and zookeeper.out folder in the same dir
-	cdepl_cluster_node_cmd "$node" "sed -i -e \"s/clientPort=[0-9]*/clientPort=$port/g\" \"${__ZOOKEEPER_PATH}/conf/zoo.cfg\" && ZOO_LOG_DIR=${__ZOOKEEPER_OUT_PATH} ${__ZOOKEEPER_PATH}/bin/zkServer.sh start ${__ZOOKEEPER_PATH}/conf/zoo.cfg >> $logfile 2>&1" "$__ZOOKEEPER_REQUIRED_ENVIRONMENT"
+	cdepl_cluster_node_cmd "$node" "ZOO_LOG_DIR=${__ZOOKEEPER_OUT_PATH} ${__ZOOKEEPER_PATH}/bin/zkServer.sh start ${__ZOOKEEPER_PATH}/conf/zoo.cfg >> $logfile 2>&1" "$__ZOOKEEPER_REQUIRED_ENVIRONMENT"
 
 	if [ "$?" != "0" ]; then
 		util_log_error "[$node][zookeeper] Starting failed, also check logfile $logfile"
