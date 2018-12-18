@@ -43,8 +43,9 @@ cdepl_app_zookeeper_init()
 		return
 	fi
 
+    local escaped="$(echo "$__ZOOKEEPER_DATA_DIR" | sed -e 's/\//\\\//g')"
 	cdepl_cluster_file_system_cmd "mkdir -p $__ZOOKEEPER_OUT_PATH"
-	cdepl_cluster_node_cmd "0" "sed -i 's/dataDir=.*/dataDir=$__ZOOKEEPER_DATA_DIR' $__ZOOKEEPER_PATH/$__ZOOKEEPER_CONF_FILE"
+	cdepl_cluster_node_cmd "0" "sed -i 's/dataDir=.*/dataDir=$escaped' $__ZOOKEEPER_PATH/$__ZOOKEEPER_CONF_FILE"
     cdepl_cluster_node_cmd "0" "sed -i -e \"s/clientPort=[0-9]*/clientPort=$port/g\" \"${__ZOOKEEPER_PATH}/conf/zoo.cfg\""
 
 	util_log "[zookeeper] Initialized: $__ZOOKEEPER_PATH"
