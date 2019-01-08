@@ -6,6 +6,8 @@ __BENCH_OUT_LOG_DIR=""
 __BENCH_OUT_RESULT_DIR=""
 __BENCH_CONSENSUS_IMPL=""
 __BENCH_ITERATION_COUNT=""
+__BENCH_THREAD_COUNT=""
+__BENCH_WRITE_DISTRIBUTION=""
 __BENCH_READ_PERCENTAGE=""
 __CONFIG_PATH=""
 
@@ -20,9 +22,11 @@ cdepl_app_cons_bench_init() {
 	__BENCH_OUT_LOG_DIR="${__BENCH_OUT_DIR}/log"
     __BENCH_OUT_RESULT_DIR="${__BENCH_OUT_DIR}/results"
     __BENCH_CONSENSUS_IMPL=$2
-    __BENCH_ITERATION_COUNT=$3
-    __BENCH_READ_PERCENTAGE=$4
-    __CONFIG_PATH=$5
+    __BENCH_THREAD_COUNT=$3
+    __BENCH_WRITE_DISTRIBUTION=$4
+    __BENCH_ITERATION_COUNT=$5
+    __BENCH_READ_PERCENTAGE=$6
+    __CONFIG_PATH=$7
 
 
 	# Output path setup
@@ -91,7 +95,7 @@ __cdepl_app_cons_bench_start()
     fi
 
     cmd="$cmd -Dbench.result=$__BENCH_OUT_RESULT_DIR/result-$node.csv"
-    cmd="$cmd -jar $__BENCH_DIR/build/libs/cons-bench-$__BENCH_VERSION.jar $__BENCH_CONSENSUS_IMPL \"/bench-$node\" $__BENCH_ITERATION_COUNT $__BENCH_READ_PERCENTAGE"
+    cmd="$cmd -jar $__BENCH_DIR/build/libs/cons-bench-$__BENCH_VERSION.jar $__BENCH_CONSENSUS_IMPL $__BENCH_THREAD_COUNT $__BENCH_WRITE_DISTRIBUTION $__BENCH_ITERATION_COUNT $__BENCH_READ_PERCENTAGE"
 	cmd="$cmd > $logfile 2>&1 &"
 
 	util_log "[$node][cons-bench] Starting benchmark: cmd=$cmd"

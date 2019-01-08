@@ -8,6 +8,8 @@ _cdepl_run_application()
     local cluster_total_nodes=$(cdepl_cluster_get_alloc_node_count)
     local server_count="$cluster_total_nodes"
     local client_count="1"
+    local thread_count="1"
+    local write_distribution="1000"
     local iteration_count="10000"
     local read_percentage="0.5"
     local config_path="$(cdepl_cluster_application_install_dir)/dxraft/config/client-config.json"
@@ -35,6 +37,14 @@ _cdepl_run_application()
 			config_path="$2"
 			shift 2
 			;;
+		--thread-count)
+			thread_count="$2"
+			shift 2
+			;;
+        --write-distribution)
+            write_distribution="$2"
+            shift 2
+            ;;
 		--) # end argument parsing
 			shift
 			break
@@ -71,7 +81,7 @@ _cdepl_run_application()
 
 	cdepl_app_dxraft_wait_started 0 $(($server_count - 1))
 
-    cdepl_app_cons_bench_init "$(cdepl_cluster_application_install_dir)/cons-bench" "dxraft" "$iteration_count" "$read_percentage" "$config_path"
+    cdepl_app_cons_bench_init "$(cdepl_cluster_application_install_dir)/cons-bench" "dxraft" "$thread_count" "$write_distribution" "$iteration_count" "$read_percentage" "$config_path"
 
 	# Kill any still running instances from previous deployments
 	cdepl_app_cons_bench_cleanup $((cluster_total_nodes - client_count)) $(($cluster_total_nodes - 1))
