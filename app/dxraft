@@ -3,6 +3,7 @@
 __DXRAFT_DIR=""
 __DXRAFT_OUT_DIR=""
 __DXRAFT_OUT_LOG_DIR=""
+__DXRAFT_LOG_LEVEL=""
 
 cdepl_app_dxraft_init() {
     local path=$1
@@ -10,6 +11,8 @@ cdepl_app_dxraft_init() {
 #	__DXRAFT_DIR="$(cdepl_cluster_node_cmd 0 "readlink -f $path")"
     __DXRAFT_DIR=$1
 	__DXRAFT_OUT_DIR="$(cdepl_run_get_cur_out_path)/dxraft"
+	__DXRAFT_LOG_LEVEL=$2
+
 	__DXRAFT_OUT_LOG_DIR="${__DXRAFT_OUT_DIR}/log"
 
 	# Check if dxram path is available
@@ -145,7 +148,7 @@ __cdepl_app_dxraft_start_node()
     local logfile="$__DXRAFT_OUT_LOG_DIR/server-$node.log"
 
 
-    local cmd="nohup $__DXRAFT_DIR/bin/dxraft-server.sh -Ddxraft.m_ip=$ip"
+    local cmd="nohup $__DXRAFT_DIR/bin/dxraft-server.sh -Ddxraft.m_ip=$ip -Ddxraft.log.level=$__DXRAFT_LOG_LEVEL"
 
     if [ "$join" = true ] ; then
         cmd="$cmd -join"

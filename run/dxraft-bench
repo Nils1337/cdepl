@@ -13,6 +13,7 @@ _cdepl_run_application()
     local iteration_count="10000"
     local read_percentage="0.5"
     local config_path="$(cdepl_cluster_application_install_dir)/dxraft/config/client-config.json"
+    local log_level="info"
 
 	PARAMS=""
 	while (( "$#" )); do
@@ -45,7 +46,10 @@ _cdepl_run_application()
             write_distribution="$2"
             shift 2
             ;;
-		--) # end argument parsing
+        --log-level)
+            log_level="$2"
+            shift 2
+            ;;		--) # end argument parsing
 			shift
 			break
 			;;
@@ -71,7 +75,7 @@ _cdepl_run_application()
     fi
 
     # Initialize dxraft deployment
-	cdepl_app_dxraft_init "$(cdepl_cluster_application_install_dir)/dxraft"
+	cdepl_app_dxraft_init "$(cdepl_cluster_application_install_dir)/dxraft" "$log_level"
 
 	# Kill any still running instances from previous deployments
 	cdepl_app_dxraft_node_cleanup 0 $(($server_count - 1))
