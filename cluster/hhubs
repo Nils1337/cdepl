@@ -18,6 +18,8 @@
 # group of the Heinrich-Heine-University Duesseldorf
 #
 
+__HHUBS_SOLLIPULLI_ADDR="134.99.70.210"
+__HHUBS_SOLLIPULLI_PORT=22
 __HHUBS_SOLLIPULLI_MODE=0
 __HHUBS_SOLLIPULLI_USER=""
 __HHUBS_SOLLIPULLI_APP_INSTALL_DIR=""
@@ -331,7 +333,7 @@ cdepl_cluster_show_logs()
 	if [ "$__HHUBS_SOLLIPULLI_MODE" = "1" ]; then
 		ssh -t sollipulli "less +F -R $path/*"
 	else
-		ssh -t -p 55517 ${__HHUBS_SOLLIPULLI_USER}@134.99.112.82 "less +F -R $path/*"
+		ssh -t -p $__HHUBS_SOLLIPULLI_POR ${__HHUBS_SOLLIPULLI_USER}@$__HHUBS_SOLLIPULLI_ADDR "less +F -R $path/*"
 	fi
 }
 
@@ -374,7 +376,7 @@ __cdepl_cluster_hhubs_remote_node_cmd()
 	if [ "$__HHUBS_SOLLIPULLI_MODE" = "1" ]; then
 		dest="${__HHUBS_SOLLIPULLI_USER}@sollipulli"
 	else
-		dest="${__HHUBS_SOLLIPULLI_USER}@134.99.112.82 -p 55517"
+		dest="${__HHUBS_SOLLIPULLI_USER}@$__HHUBS_SOLLIPULLI_ADDR -p $__HHUBS_SOLLIPULLI_PORT"
 	fi
 
 	# -n -f for nohup
@@ -399,8 +401,8 @@ __cdepl_cluster_hhubs_upload_to_sollipulli()
 	if [ "$__HHUBS_SOLLIPULLI_MODE" = "1" ]; then
 		dest="${__HHUBS_SOLLIPULLI_USER}@sollipulli:${remote_path}"
 	else
-		port="-P 55517"
-		dest="${__HHUBS_SOLLIPULLI_USER}@134.99.112.82:${remote_path}"
+		port="-P $__HHUBS_SOLLIPULLI_PORT"
+		dest="${__HHUBS_SOLLIPULLI_USER}@$__HHUBS_SOLLIPULLI_ADDR:${remote_path}"
 	fi
 
 	if [ "$recursive " ]; then
@@ -425,8 +427,8 @@ __cdepl_cluster_hhubs_download_from_sollipulli()
 	if [ "$__HHUBS_SOLLIPULLI_MODE" = "1" ]; then
 		dest="${__HHUBS_SOLLIPULLI_USER}@sollipulli:${remote_path}"
 	else
-		port="-P 55517"
-		dest="${__HHUBS_SOLLIPULLI_USER}@134.99.112.82:${remote_path}"
+		port="-P $__HHUBS_SOLLIPULLI_PORT"
+		dest="${__HHUBS_SOLLIPULLI_USER}@$__HHUBS_SOLLIPULLI_ADDR:${remote_path}"
 	fi
 
 	if [ "$recursive " ]; then
@@ -448,7 +450,7 @@ __cdepl_cluster_hhubs_remote_sollipulli_cmd()
 	if [ "$__HHUBS_SOLLIPULLI_MODE" = "1" ]; then
 		dest="${__HHUBS_SOLLIPULLI_USER}@sollipulli"
 	else
-		dest="${__HHUBS_SOLLIPULLI_USER}@134.99.112.82 -p 55517"
+		dest="${__HHUBS_SOLLIPULLI_USER}@$__HHUBS_SOLLIPULLI_ADDR -p $__HHUBS_SOLLIPULLI_PORT"
 	fi
 
 	# -n -f for nohup
@@ -469,7 +471,7 @@ __cdepl_cluster_hhubs_sollipulli_check()
 	if [ "$?" != "0" ]; then
 
 		# Try directly via IP
-		ping -c 1 134.99.112.82 > /dev/null 2>&1
+		ping -c 1 $__HHUBS_SOLLIPULLI_ADDR > /dev/null 2>&1
 
 		if [ "$?" != "0" ]; then
 			util_log_error_and_exit "[hhubs] Could not contact sollipulli, not available"
@@ -484,12 +486,12 @@ __cdepl_cluster_hhubs_sollipulli_check()
 	if [ "$__HHUBS_SOLLIPULLI_MODE" = "1" ]; then
 		ssh -o PasswordAuthentication=no -o BatchMode=yes sollipulli exit &> /dev/null
 	else
-		ssh -p 55517 -o PasswordAuthentication=no -o BatchMode=yes ${__HHUBS_SOLLIPULLI_USER}@134.99.112.82 exit &> /dev/null
+		ssh -p $__HHUBS_SOLLIPULLI_PORT -o PasswordAuthentication=no -o BatchMode=yes ${__HHUBS_SOLLIPULLI_USER}@$__HHUBS_SOLLIPULLI_ADDR exit &> /dev/null
 	fi
 
 	if [ "$?" != "0" ]; then
 		# Check if the login node is reachable
-		local state="$(ping -c1 -W1 134.99.112.82 &> /dev/null && echo '1' || echo '')"
+		local state="$(ping -c1 -W1 $__HHUBS_SOLLIPULLI_ADDR &> /dev/null && echo '1' || echo '')"
 
 		if [ ! "$state" ]; then
 			util_log_error_and_exit "[hhubs] Can't connect to login node, server down or not reachable"
