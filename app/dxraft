@@ -148,6 +148,7 @@ __cdepl_app_dxraft_start_node()
     local join=$2
     local logfile="$__DXRAFT_OUT_LOG_DIR/server-$node.log"
 
+	cdepl_cluster_node_cmd "$node" "rm -rf $__DXRAFT_LOG_FILE_DIR"
 	cdepl_cluster_node_cmd "$node" "mkdir $__DXRAFT_LOG_FILE_DIR"
 
     local cmd="nohup $__DXRAFT_DIR/bin/dxraft-server.sh -Ddxraft.m_ip=$ip -Ddxraft.log.level=$__DXRAFT_LOG_LEVEL"
