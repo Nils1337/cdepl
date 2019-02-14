@@ -14,6 +14,7 @@ _cdepl_run_application()
     local read_percentage="0.5"
     local config_path="$(cdepl_cluster_application_install_dir)/dxraft/config/client-config.json"
     local log_level="info"
+    local result_folder="results"
 
 	PARAMS=""
 	while (( "$#" )); do
@@ -49,7 +50,12 @@ _cdepl_run_application()
         --log-level)
             log_level="$2"
             shift 2
-            ;;		--) # end argument parsing
+            ;;
+        --result-folder)
+            result_folder="$2"
+            shift 2
+            ;;
+        --) # end argument parsing
 			shift
 			break
 			;;
@@ -92,4 +98,9 @@ _cdepl_run_application()
 
 	# Start all nodes
 	cdepl_app_cons_bench_start $((cluster_total_nodes - client_count)) $(($cluster_total_nodes - 1))
+
+	cdepl_app_cons_bench_wait_finished $((cluster_total_nodes - client_count)) $(($cluster_total_nodes - 1))
+
+	cdepl_app_cons_bench_download_results "$result_folder"
+
 }

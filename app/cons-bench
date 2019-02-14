@@ -61,6 +61,31 @@ cdepl_app_cons_bench_start()
 	fi
 }
 
+cdepl_app_cons_bench_wait_finished()
+{
+	local node_range_start=$1
+	local node_range_end=$2
+
+	if [ "$node_range_end" ]; then
+		local pids=""
+
+		for node in $(seq "$node_range_start" "$node_range_end"); do
+			__cdepl_app_cons_bench_wait_finished "$node" &
+			pids="$pids $!"
+		done
+
+		wait $pids
+	else
+		__cdepl_app_cons_bench_wait_finished "$node_range_start"
+	fi
+}
+
+cdepl_app_cons_bench_download_results()
+{
+    local node_
+
+}
+
 cdepl_app_cons_bench_cleanup()
 {
 	local node_range_start=$1
@@ -78,6 +103,44 @@ cdepl_app_cons_bench_cleanup()
 	else
 		__cdepl_app_cons_bench_cleanup "$node_range_start"
 	fi
+}
+
+__cdepl_app_cons_bench_download_results()
+{
+    local local_path=$1
+    util_log "[cons-bench] Downloading results to \"$1\""
+
+    cdepl_cluster_download_from_remote "$(cdepl_run_get_cur_out_path)" "$local_path" true
+
+    util_log "[cons-bench] Download finished"
+}
+
+__cdepl_app_cons_bench_wait_finished()
+{
+	local node=$1
+
+	local logfile="${__BENCH_OUT_LOG_DIR}/server-$node.log"
+
+	util_log "[$node][cons-bench] Waiting for finish"
+	local pid
+	local time=0
+	while true; do
+		echo -n "."
+
+		local finished=$(cdepl_cluster_node_cmd "$node" "cat '$logfile' | grep 'Finished'")
+		local failed=$(cdepl_cluster_node_cmd "$node" "cat '$logfile' | grep 'ERROR'")
+
+		if [ "$finished" != "" ]; then
+			util_log "[$node][cons-bench] Benchmark finished"
+			return
+		elif [ "$failed" != "" ] ; then
+			echo ""
+			util_log_error "[$node][cons-bench] Benchmark failed. See log file $logfile"
+			return
+		fi
+
+		sleep 3.0
+	done
 }
 
 __cdepl_app_cons_bench_start()

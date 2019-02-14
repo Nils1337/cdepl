@@ -13,6 +13,7 @@ _cdepl_run_application()
     local write_distribution="1000"
     local iteration_count="10000"
     local read_percentage="0.5"
+    local result_folder="results"
 
 	PARAMS=""
 	while (( "$#" )); do
@@ -43,6 +44,10 @@ _cdepl_run_application()
 			;;
         --write-distribution)
             write_distribution="$2"
+            shift 2
+            ;;
+        --result-folder)
+            result_folder="$2"
             shift 2
             ;;
 		--) # end argument parsing
@@ -94,4 +99,8 @@ _cdepl_run_application()
 
 	# Start all nodes
 	cdepl_app_cons_bench_start $((cluster_total_nodes - client_count)) $(($cluster_total_nodes - 1))
+
+	cdepl_app_cons_bench_wait_finished $((cluster_total_nodes - client_count)) $(($cluster_total_nodes - 1))
+
+	cdepl_app_cons_bench_download_results "$result_folder"
 }
