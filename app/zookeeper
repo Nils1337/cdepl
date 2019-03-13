@@ -55,14 +55,14 @@ cdepl_app_zookeeper_init()
 }
 
 ##
-# Start a zookeeper (server) instance on the target node.
+# Start zookeeper instances on the target nodes.
 #
-# $1 node Target node id
-# $2 port Port for the server instance to use
+# $1 id1 Node id range start
+# $2 id2 Node id range end
+# $3 port Port for the server instance to use
 ##
 cdepl_app_zookeeper_start()
 {
-
 	local node_range_start=$1
 	local node_range_end=$2
 	local port=$3
@@ -126,9 +126,10 @@ cdepl_app_zookeeper_remove()
 }
 
 ##
-# For for a started zookeeper (server) instance to be started
+# Wait for zookeeper (server) instances to be started
 #
-# $1 node Target node id with started zookeeper (server) instance
+# $1 id1 Node id with started zookeeper instance range start
+# $2 id2 Node id range end
 ##
 cdepl_app_zookeeper_wait_started()
 {

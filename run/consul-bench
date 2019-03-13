@@ -1,0 +1,106 @@
+source "app/consul"
+source "app/cons-bench"
+CONSUL_PORT=8500
+
+_cdepl_run_application()
+{
+    local cluster_total_nodes=$(cdepl_cluster_get_alloc_node_count)
+    local server_count="$cluster_total_nodes"
+    local client_count="1"
+    local thread_count="1"
+    local write_distribution="1000"
+    local iteration_count="10000"
+    local read_percentage="0.5"
+    local result_folder="results"
+
+	PARAMS=""
+	while (( "$#" )); do
+	case "$1" in
+		--servers)
+			server_count="$2"
+			shift 2
+			;;
+		--clients)
+			client_count="$2"
+			shift 2
+			;;
+		--it-count)
+			iteration_count="$2"
+			shift 2
+			;;
+		--read-percentage)
+			read_percentage="$2"
+			shift 2
+			;;
+		--config-path)
+			config_path="$2"
+			shift 2
+			;;
+		--thread-count)
+			thread_count="$2"
+			shift 2
+			;;
+        --write-distribution)
+            write_distribution="$2"
+            shift 2
+            ;;
+        --result-folder)
+            result_folder="$2"
+            shift 2
+            ;;
+		--) # end argument parsing
+			shift
+			break
+			;;
+		-*|--*=) # unsupported flags
+			echo "Error: Unsupported flag $1" >&2
+			exit 1
+			;;
+		*) # preserve positional arguments
+			PARAMS="$PARAMS $1"
+			shift
+			;;
+	esac
+	done
+
+    if [[ $server_count -gt $cluster_total_nodes ]] ; then
+        util_log_error "Server count higher than allocated nodes"
+        return
+    fi
+
+    if [[ $client_count -gt $cluster_total_nodes ]] ; then
+        util_log_error "Client count higher than allocated nodes"
+        return
+    fi
+
+    # Initialize zookeeper deployment
+	cdepl_app_consul_init "$(cdepl_cluster_application_install_dir)/consul"
+
+	# Kill any still running instances from previous deployments
+	cdepl_app_consul_cleanup 0 $(($server_count - 1))
+
+    cdepl_app_consul_set_bootstrap_node 0
+
+	# Start all nodes
+	cdepl_app_consul_start 0 $(($server_count - 1))
+
+	cdepl_app_consul_wait_started 0 $(($server_count - 1))
+
+	local server_list=""
+
+	for node in $(seq 0 $(($server_count - 1))); do
+	    server_list="$server_list$(cdepl_cluster_resolve_node_to_ip $node):$CONSUL_PORT,"
+	done
+
+    cdepl_app_cons_bench_init "$(cdepl_cluster_application_install_dir)/cons-bench" "consul" "$thread_count" "$write_distribution" "$iteration_count" "$read_percentage" "$server_list"
+
+	# Kill any still running instances from previous deployments
+	cdepl_app_cons_bench_cleanup $((cluster_total_nodes - client_count)) $(($cluster_total_nodes - 1))
+
+	# Start all nodes
+	cdepl_app_cons_bench_start $((cluster_total_nodes - client_count)) $(($cluster_total_nodes - 1))
+
+	cdepl_app_cons_bench_wait_finished $((cluster_total_nodes - client_count)) $(($cluster_total_nodes - 1))
+
+	cdepl_app_cons_bench_download_results "$result_folder"
+}

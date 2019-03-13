@@ -46,11 +46,36 @@ cdepl_app_consul_init()
 }
 
 ##
+# Start consul instances on the target nodes.
+#
+# $1 id1 Node id range start
+# $2 id2 Node id range end
+##
+cdepl_app_zookeeper_start()
+{
+	local node_range_start=$1
+	local node_range_end=$2
+
+	if [ "$node_range_end" ]; then
+		local pids=""
+
+		for node in $(seq "$node_range_start" "$node_range_end"); do
+			__cdepl_app_consul_start "$node" "$port" &
+			pids="$pids $!"
+		done
+
+		wait $pids
+	else
+		__cdepl_app_consul_start "$node_range_start" "$port"
+    fi
+}
+
+##
 # Start a consul (server) instance on the target node.
 #
-# $1 node Target node id
+# $1 node node id
 ##
-cdepl_app_consul_start()
+__cdepl_app_consul_start()
 {
 	local node=$1
 
@@ -82,11 +107,36 @@ cdepl_app_consul_start()
 }
 
 ##
-# For for a started consul (server) instance to be started
+# Wait for zookeeper (server) instances to be started
+#
+# $1 id1 Node id with started zookeeper instance range start
+# $2 id2 Node id range end
+##
+cdepl_app_zookeeper_wait_started()
+{
+	local node_range_start=$1
+	local node_range_end=$2
+
+	if [ "$node_range_end" ]; then
+		local pids=""
+
+		for node in $(seq "$node_range_start" "$node_range_end"); do
+			__cdepl_app_consul_wait_started "$node" &
+			pids="$pids $!"
+		done
+
+		wait $pids
+	else
+		__cdepl_app_consul_wait_started "$node_range_start"
+	fi
+}
+
+##
+# Wait for a started consul (server) instance to be started
 #
 # $1 node Target node id with started consul (server) instance
 ##
-cdepl_app_consul_wait_started()
+__cdepl_app_consul_wait_started()
 {
 	local node=$1
 
