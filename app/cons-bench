@@ -9,7 +9,7 @@ __BENCH_ITERATION_COUNT=""
 __BENCH_THREAD_COUNT=""
 __BENCH_WRITE_DISTRIBUTION=""
 __BENCH_READ_PERCENTAGE=""
-__CONFIG_PATH=""
+__SERVER_LIST_OR_CONFIG_PATH=""
 
 __BENCH_VERSION="1.0-SNAPSHOT"
 
@@ -26,7 +26,7 @@ cdepl_app_cons_bench_init() {
     __BENCH_WRITE_DISTRIBUTION=$4
     __BENCH_ITERATION_COUNT=$5
     __BENCH_READ_PERCENTAGE=$6
-    __CONFIG_PATH=$7
+    __SERVER_LIST_OR_CONFIG_PATH=$7
 
 
 	# Output path setup
@@ -41,7 +41,6 @@ cdepl_app_cons_bench_start()
 {
 	local node_range_start=$1
 	local node_range_end=$2
-	local
 
 	if [ "$node_range_end" ]; then
 		local pids=""
@@ -152,9 +151,11 @@ __cdepl_app_cons_bench_start()
     local cmd="nohup java"
 
     if [ $__BENCH_CONSENSUS_IMPL == "zookeeper" ] ; then
-        cmd="$cmd -Dzookeeper.servers=$__CONFIG_PATH"
-    else
-        cmd="$cmd -Ddxraft.config=$__CONFIG_PATH"
+        cmd="$cmd -Dzookeeper.servers=$__SERVER_LIST_OR_CONFIG_PATH"
+    elif [ $__BENCH_CONSENSUS_IMPL == "consul" ] ; then
+        cmd="$cmd -Dconsul.servers=$__SERVER_LIST_OR_CONFIG_PATH"
+	else
+        cmd="$cmd -Ddxraft.config=$__SERVER_LIST_OR_CONFIG_PATH"
     fi
 
     cmd="$cmd -Dbench.result=$__BENCH_OUT_RESULT_DIR/result-$node.csv"
