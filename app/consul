@@ -51,7 +51,7 @@ cdepl_app_consul_init()
 # $1 id1 Node id range start
 # $2 id2 Node id range end
 ##
-cdepl_app_zookeeper_start()
+cdepl_app_consul_start()
 {
 	local node_range_start=$1
 	local node_range_end=$2
@@ -112,7 +112,7 @@ __cdepl_app_consul_start()
 # $1 id1 Node id with started zookeeper instance range start
 # $2 id2 Node id range end
 ##
-cdepl_app_zookeeper_wait_started()
+cdepl_app_consul_wait_started()
 {
 	local node_range_start=$1
 	local node_range_end=$2
