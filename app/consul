@@ -90,6 +90,10 @@ __cdepl_app_consul_start()
         util_log_error_and_exit "[$node][consul] No Consul bootstrap node specified"
     fi
 
+	# Delete Consul's previous data directory
+	util_log "[$node][consul] Deleting consul data directory"
+	cdepl_cluster_node_cmd "$node" "rm -rf $__CONSUL_DATA_DIR"
+	
 	util_log "[$node][consul] Starting, logfile: $logfile"
 
 	cdepl_cluster_node_cmd $node "mkdir -p $__CONSUL_OUT_PATH"
