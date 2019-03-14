@@ -93,7 +93,7 @@ __cdepl_app_consul_start()
 	# Delete Consul's previous data directory
 	util_log "[$node][consul] Deleting consul data directory"
 	cdepl_cluster_node_cmd "$node" "rm -rf $__CONSUL_DATA_DIR"
-	
+
 	util_log "[$node][consul] Starting, logfile: $logfile"
 
 	cdepl_cluster_node_cmd $node "mkdir -p $__CONSUL_OUT_PATH"
@@ -103,7 +103,7 @@ __cdepl_app_consul_start()
     else
         local bootstrap_ip="$(cdepl_cluster_resolve_node_to_ip ${__CONSUL_BOOTSTRAP_NODE})"
         util_log $__CONSUL_BOOTSTRAP_NODE
-        cdepl_cluster_node_cmd $node "nohup ${__CONSUL_PATH}/consul agent -join $bootstrap_ip -client=$ip -data-dir=${__CONSUL_DATA_DIR} >> $logfile 2>&1 &"
+        cdepl_cluster_node_cmd $node "nohup ${__CONSUL_PATH}/consul agent -server -join $bootstrap_ip -client=$ip -data-dir=${__CONSUL_DATA_DIR} >> $logfile 2>&1 &"
     fi
     
 	if [ "$?" != "0" ]; then
