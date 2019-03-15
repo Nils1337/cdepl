@@ -27,6 +27,7 @@ cdepl_app_cons_bench_init() {
     __BENCH_ITERATION_COUNT=$5
     __BENCH_READ_PERCENTAGE=$6
     __SERVER_LIST_OR_CONFIG_PATH=$7
+	__SAVE_HISTORY=$8
 
 
 	# Output path setup
@@ -151,6 +152,10 @@ __cdepl_app_cons_bench_start()
 	else
         cmd="$cmd -Ddxraft.config=$__SERVER_LIST_OR_CONFIG_PATH"
     fi
+
+	if [ $__SAVE_HISTORY ] ; then
+		cmd="$cmd -Dhistory=$__BENCH_OUT_RESULT_DIR/history.csv"
+	fi
 
     cmd="$cmd -Dbench.result=$__BENCH_OUT_RESULT_DIR/result-$node.csv"
     cmd="$cmd -jar $__BENCH_DIR/build/libs/cons-bench-$__BENCH_VERSION.jar $__BENCH_CONSENSUS_IMPL $__BENCH_THREAD_COUNT $__BENCH_WRITE_DISTRIBUTION $__BENCH_ITERATION_COUNT $__BENCH_READ_PERCENTAGE"
