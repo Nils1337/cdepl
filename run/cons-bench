@@ -67,8 +67,8 @@ _cdepl_run_application()
             shift 2
             ;;
         --save-history)
-            save_history="$2"
-            shift 2
+            save_history=true
+            shift 1
             ;;
         --) # end argument parsing
 			shift
