@@ -104,7 +104,7 @@ __cdepl_app_consul_start()
 
 	local cmd="nohup ${__CONSUL_PATH}/consul agent -server"
 	
-	if [ $server_list == "" ] ; then
+	if [ "$server_list" == "" ] ; then
 		cmd="$cmd -bootstrap"
 	else
 		cmd="$cmd -bootstrap-expect=$server_count -retry-join=$server_list"
