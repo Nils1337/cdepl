@@ -23,7 +23,6 @@ __CDEPL_APP_CONSUL_INCLUDED="1"
 __CONSUL_PATH=""
 __CONSUL_OUT_PATH=""
 __CONSUL_GUI_ENABLED=""
-__CONSUL_BOOTSTRAP_NODE=""
 
 readonly __CONSUL_LOG_FILE_POSTFIX="_server"
 readonly __CONSUL_LOG_FILE_CLIENT_POSTFIX="_client"
@@ -60,13 +59,13 @@ cdepl_app_consul_start()
 		local pids=""
 
 		for node in $(seq "$node_range_start" "$node_range_end"); do
-			__cdepl_app_consul_start "$node" "$port" &
+			__cdepl_app_consul_start "$node" "$(($node_range_end - $node_range_start + 1))" &
 			pids="$pids $!"
 		done
 
 		wait $pids
 	else
-		__cdepl_app_consul_start "$node_range_start" "$port"
+		__cdepl_app_consul_start "$node_range_start" "1"
     fi
 }
 
@@ -78,6 +77,7 @@ cdepl_app_consul_start()
 __cdepl_app_consul_start()
 {
 	local node=$1
+	local server_count=$2
 	local ip="$(cdepl_cluster_resolve_node_to_ip ${node})"
 
     local param_gui=""
@@ -85,10 +85,6 @@ __cdepl_app_consul_start()
 	local logfile=${__CONSUL_OUT_PATH}/node${node}${__CONSUL_LOG_FILE_POSTFIX}
 
     __cdepl_app_consul_resolve_default_config_values
-
-    if [ "${__CONSUL_BOOTSTRAP_NODE}" = "" ]; then
-        util_log_error_and_exit "[$node][consul] No Consul bootstrap node specified"
-    fi
 
 	# Delete Consul's previous data directory
 	util_log "[$node][consul] Deleting consul data directory"
@@ -98,13 +94,7 @@ __cdepl_app_consul_start()
 
 	cdepl_cluster_node_cmd $node "mkdir -p $__CONSUL_OUT_PATH"
 
-    if [ "${__CONSUL_BOOTSTRAP_NODE}" = "$node" ]; then
-        cdepl_cluster_node_cmd $node "nohup ${__CONSUL_PATH}/consul agent -server -bootstrap -client=$ip -data-dir=${__CONSUL_DATA_DIR} >> $logfile 2>&1 &"
-    else
-        local bootstrap_ip="$(cdepl_cluster_resolve_node_to_ip ${__CONSUL_BOOTSTRAP_NODE})"
-        util_log $__CONSUL_BOOTSTRAP_NODE
-        cdepl_cluster_node_cmd $node "nohup ${__CONSUL_PATH}/consul agent -server -join $bootstrap_ip -client=$ip -data-dir=${__CONSUL_DATA_DIR} >> $logfile 2>&1 &"
-    fi
+    cdepl_cluster_node_cmd $node "nohup ${__CONSUL_PATH}/consul agent -server -bootstrap-expect $server_count -client=$ip -data-dir=${__CONSUL_DATA_DIR} >> $logfile 2>&1 &"
     
 	if [ "$?" != "0" ]; then
 		util_log_error_and_exit "[$node][consul] Starting failed, also check logfile $logfile"
@@ -112,9 +102,9 @@ __cdepl_app_consul_start()
 }
 
 ##
-# Wait for zookeeper (server) instances to be started
+# Wait for consul (server) instances to be started
 #
-# $1 id1 Node id with started zookeeper instance range start
+# $1 id1 Node id with started consul instance range start
 # $2 id2 Node id range end
 ##
 cdepl_app_consul_wait_started()
