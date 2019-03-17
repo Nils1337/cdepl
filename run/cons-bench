@@ -145,8 +145,6 @@ _cdepl_run_application()
         # Kill any still running instances from previous deployments
         cdepl_app_consul_cleanup 0 $(($server_count - 1))
 
-        cdepl_app_consul_set_bootstrap_node 0
-
         # Start all nodes
         cdepl_app_consul_start 0 $(($server_count - 1))
 

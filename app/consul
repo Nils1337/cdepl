@@ -61,7 +61,7 @@ cdepl_app_consul_start()
 
         for node in $(seq "$node_range_start" "$node_range_end"); do
             server_list="$server_list\"$(cdepl_cluster_resolve_node_to_ip $node)\""
-			if [ $node != $node_range_end] ; then
+			if [ "$node" != "$node_range_end" ] ; then
 				server_list="$server_list, "
 			fi
         done
@@ -215,18 +215,6 @@ cdepl_app_consul_cleanup()
 	else
 		__cdepl_app_consul_cleanup $node_range_start
 	fi
-}
-
-##
-# Sets the consul bootstrap node.
-#
-# $1 node Target node id
-##
-cdepl_app_consul_set_bootstrap_node()
-{
-	local node=$1
-
-    __CONSUL_BOOTSTRAP_NODE="$node"
 }
 
 __cdepl_app_consul_get_instance_running_pid()
