@@ -61,7 +61,7 @@ cdepl_app_consul_start()
 
         for node in $(seq "$node_range_start" "$node_range_end"); do
             server_list="$server_list\"$(cdepl_cluster_resolve_node_to_ip $node)\""
-			if [ $node != $node_range_end] : then
+			if [ $node != $node_range_end] ; then
 				server_list="$server_list, "
 			fi
         done
