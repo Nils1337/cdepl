@@ -57,9 +57,16 @@ cdepl_app_consul_start()
 
 	if [ "$node_range_end" ]; then
 		local pids=""
+		local server_list="["
+
+        for node in $(seq "$node_range_start" "$node_range_end"); do
+            server_list="$server_list\"$(cdepl_cluster_resolve_node_to_ip $node)\", "
+        done
+
+		server_list="$server_list]"
 
 		for node in $(seq "$node_range_start" "$node_range_end"); do
-			__cdepl_app_consul_start "$node" "$(($node_range_end - $node_range_start + 1))" &
+			__cdepl_app_consul_start "$node" "$(($node_range_end - $node_range_start + 1))" "$server_list" &
 			pids="$pids $!"
 		done
 
@@ -78,6 +85,7 @@ __cdepl_app_consul_start()
 {
 	local node=$1
 	local server_count=$2
+	local server_list=$3
 	local ip="$(cdepl_cluster_resolve_node_to_ip ${node})"
 
     local param_gui=""
@@ -94,7 +102,17 @@ __cdepl_app_consul_start()
 
 	cdepl_cluster_node_cmd $node "mkdir -p $__CONSUL_OUT_PATH"
 
-    cdepl_cluster_node_cmd $node "nohup ${__CONSUL_PATH}/consul agent -server -bootstrap-expect $server_count -client=$ip -data-dir=${__CONSUL_DATA_DIR} >> $logfile 2>&1 &"
+	local cmd="nohup ${__CONSUL_PATH}/consul agent -server"
+	
+	if [ $server_list == "" ] ; then
+		cmd="$cmd -bootstrap"
+	else
+		cmd="$cmd -bootstrap-expect=$server_count -retry-join=$server_list"
+	fi
+
+	cmd="$cmd -client=$ip -data-dir=${__CONSUL_DATA_DIR} >> $logfile 2>&1 &"
+
+    cdepl_cluster_node_cmd $node "$cmd"
     
 	if [ "$?" != "0" ]; then
 		util_log_error_and_exit "[$node][consul] Starting failed, also check logfile $logfile"
