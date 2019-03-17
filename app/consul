@@ -60,7 +60,10 @@ cdepl_app_consul_start()
 		local server_list="["
 
         for node in $(seq "$node_range_start" "$node_range_end"); do
-            server_list="$server_list\"$(cdepl_cluster_resolve_node_to_ip $node)\", "
+            server_list="$server_list\"$(cdepl_cluster_resolve_node_to_ip $node)\""
+			if [ $node != $node_range_end] : then
+				server_list="$server_list, "
+			fi
         done
 
 		server_list="$server_list]"
@@ -98,8 +101,6 @@ __cdepl_app_consul_start()
 	util_log "[$node][consul] Deleting consul data directory"
 	cdepl_cluster_node_cmd "$node" "rm -rf $__CONSUL_DATA_DIR"
 
-	util_log "[$node][consul] Starting, logfile: $logfile"
-
 	cdepl_cluster_node_cmd $node "mkdir -p $__CONSUL_OUT_PATH"
 
 	local cmd="nohup ${__CONSUL_PATH}/consul agent -server"
@@ -111,6 +112,8 @@ __cdepl_app_consul_start()
 	fi
 
 	cmd="$cmd -client=$ip -data-dir=${__CONSUL_DATA_DIR} >> $logfile 2>&1 &"
+
+	util_log "[$node][consul] Starting consul: cmd=$cmd"
 
     cdepl_cluster_node_cmd $node "$cmd"
     
