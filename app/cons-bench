@@ -10,6 +10,7 @@ __BENCH_THREAD_COUNT=""
 __BENCH_WRITE_DISTRIBUTION=""
 __BENCH_READ_PERCENTAGE=""
 __SERVER_LIST_OR_CONFIG_PATH=""
+__DEBUG_REQUESTS=""
 
 __BENCH_VERSION="1.0-SNAPSHOT"
 
@@ -28,6 +29,7 @@ cdepl_app_cons_bench_init() {
     __BENCH_READ_PERCENTAGE=$6
     __SERVER_LIST_OR_CONFIG_PATH=$7
 	__SAVE_HISTORY=$8
+	__DEBUG_REQUESTS=$9
 
 
 	# Output path setup
@@ -155,6 +157,10 @@ __cdepl_app_cons_bench_start()
 
 	if [ "$__SAVE_HISTORY" = true  ] ; then
 		cmd="$cmd -Dhistory=$__BENCH_OUT_RESULT_DIR/history.csv"
+	fi
+
+	if [ "$__DEBUG_REQUESTS" = true  ] ; then
+		cmd="$cmd -Ddebug-requests"
 	fi
 
     cmd="$cmd -Dbench.result=$__BENCH_OUT_RESULT_DIR/result-$node.csv"

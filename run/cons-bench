@@ -22,6 +22,7 @@ _cdepl_run_application()
     local result_folder="results"
     local system=""
     local save_history=false
+    local debug_requests=false
 
 	PARAMS=""
 	while (( "$#" )); do
@@ -70,6 +71,10 @@ _cdepl_run_application()
             save_history=true
             shift 1
             ;;
+        --debug-requests)
+            debug_requests=true
+            shift 1
+            ;;
         --) # end argument parsing
 			shift
 			break
@@ -114,7 +119,7 @@ _cdepl_run_application()
 
         cdepl_app_dxraft_wait_started 0 $(($server_count - 1))
 
-        cdepl_app_cons_bench_init "$(cdepl_cluster_application_install_dir)/cons-bench" "dxraft" "$thread_count" "$write_distribution" "$iteration_count" "$read_percentage" "$config_path" "$save_history"
+        cdepl_app_cons_bench_init "$(cdepl_cluster_application_install_dir)/cons-bench" "dxraft" "$thread_count" "$write_distribution" "$iteration_count" "$read_percentage" "$config_path" "$save_history" "$debug_requests"
 
     elif [ $system == "zk" ] ; then
 
