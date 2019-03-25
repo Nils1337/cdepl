@@ -1,0 +1,21 @@
+# Includes
+source "app/dxraft"
+source "app/consul"
+source "app/zookeeper"
+source "app/cons-bench"
+
+_cdepl_kill_application()
+{
+    local system=$1
+    local cluster_total_nodes=$(cdepl_cluster_get_alloc_node_count)
+
+	cdepl_app_cons_bench_cleanup 0 $((cluster_total_nodes - 1))
+
+    if [[ system == "dxraft" ]] ; then
+	    cdepl_app_dxraft_node_cleanup 0 $((cluster_total_nodes - 1))
+    elif [[ system == "zk" ]] ; then
+        cdepl_app_zookeeper_cleanup 0 $((cluster_total_nodes - 1))
+    elif [[ system == "consul" ]] ; then
+        cdepl_app_consul_cleanup 0 $((cluster_total_nodes - 1))
+    fi
+}

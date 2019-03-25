@@ -1,0 +1,8 @@
+# Includes
+source "app/consul"
+
+_cdepl_kill_application()
+{
+    local cluster_total_nodes=$(cdepl_cluster_get_alloc_node_count)
+    cdepl_app_consul_cleanup 0 $((cluster_total_nodes - 1))
+}

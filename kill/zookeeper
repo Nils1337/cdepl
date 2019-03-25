@@ -18,12 +18,6 @@ source "app/zookeeper"
 
 _cdepl_kill_application()
 {
-    local zookeeper_path="$(cdepl_cluster_application_install_dir)/zookeeper"
     local cluster_total_nodes=$(cdepl_cluster_get_alloc_node_count)
-
-    cdepl_app_zookeeper_init $zookeeper_path
-
-    for i in $(seq 0 $((cluster_total_nodes - 1))); do
-		cdepl_app_zookeeper_cleanup $i
-	done
+    cdepl_app_dxraft_cleanup 0 $((cluster_total_nodes - 1))
 }
