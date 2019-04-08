@@ -177,7 +177,9 @@ _cdepl_run_application()
         # Start all nodes
         cdepl_app_etcd_start 0 $(($server_count - 1))
 
-        cdepl_app_etcd_wait_started 0 $(($server_count - 1))
+        # wait_started doesnt work for etcd because etcd does not print log output to file when run in background over ssh
+        # cdepl_app_etcd_wait_started 0 $(($server_count - 1))
+        sleep 5
 
         local server_list=""
 
