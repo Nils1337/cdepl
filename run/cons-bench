@@ -184,7 +184,7 @@ _cdepl_run_application()
         local server_list=""
 
         for node in $(seq 0 $(($server_count - 1))); do
-            server_list="$server_list$(cdepl_cluster_resolve_node_to_ip $node):$ETCD_PORT,"
+            server_list="${server_list}http://$(cdepl_cluster_resolve_node_to_ip $node):$ETCD_PORT,"
         done
 
         cdepl_app_cons_bench_init "$(cdepl_cluster_application_install_dir)/cons-bench" "etcd" "$thread_count" "$write_distribution" "$iteration_count" "$read_percentage" "$server_list" "$save_history"
