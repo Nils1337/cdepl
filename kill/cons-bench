@@ -3,6 +3,7 @@ source "app/dxraft"
 source "app/consul"
 source "app/zookeeper"
 source "app/cons-bench"
+source "app/etcd"
 
 _cdepl_kill_application()
 {
