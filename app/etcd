@@ -64,7 +64,7 @@ cdepl_app_etcd_start()
 #
 # $1 node node id
 ##
-__cdepl_app_consul_start()
+__cdepl_app_etcd_start()
 {
 	local node=$1
 	local node_range_start=$2
