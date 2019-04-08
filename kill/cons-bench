@@ -17,5 +17,7 @@ _cdepl_kill_application()
         cdepl_app_zookeeper_cleanup 0 $((cluster_total_nodes - 1))
     elif [[ "$system" == "consul" ]] ; then
         cdepl_app_consul_cleanup 0 $((cluster_total_nodes - 1))
+    elif [[ "$system" == "etcd" ]] ; then
+        cdepl_app_etcd_cleanup 0 $((cluster_total_nodes - 1))
     fi
 }
