@@ -86,7 +86,7 @@ __cdepl_app_etcd_start()
 
 	cdepl_cluster_node_cmd $node "mkdir -p $__ETCD_DATA_DIR"
 
-	local cmd="nohup ${__ETCD_PATH}/etcd --name node$node --initial-cluster $server_list --initial-cluster-state new --listen-peer-urls http://$ip:$__ETCD_PEER_PORT --listen-client-urls http://$ip:$__ETCD_CLIENT_PORT --advertise-client-urls http://$ip:$__ETCD_CLIENT_PORT --data-dir=${__CONSUL_DATA_DIR} >> $logfile 2>&1 &"
+	local cmd="nohup ${__ETCD_PATH}/etcd --name node$node --initial-cluster $server_list --initial-cluster-state new --listen-peer-urls http://$ip:$__ETCD_PEER_PORT --listen-client-urls http://$ip:$__ETCD_CLIENT_PORT --advertise-client-urls http://$ip:$__ETCD_CLIENT_PORT --data-dir=${__ETCD_DATA_DIR} >> $logfile 2>&1 &"
 
 	util_log "[$node][etcd] Starting etcd: cmd=$cmd"
 
