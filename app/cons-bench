@@ -147,13 +147,11 @@ __cdepl_app_cons_bench_start()
     local logfile="$__BENCH_OUT_LOG_DIR/bench-$node.log"
     local cmd="nohup java"
 
-    if [ $__BENCH_CONSENSUS_IMPL == "zookeeper" ] ; then
-        cmd="$cmd -Dzookeeper.servers=$__SERVER_LIST_OR_CONFIG_PATH"
-    elif [ $__BENCH_CONSENSUS_IMPL == "consul" ] ; then
-        cmd="$cmd -Dconsul.servers=$__SERVER_LIST_OR_CONFIG_PATH"
-	else
-        cmd="$cmd -Ddxraft.config=$__SERVER_LIST_OR_CONFIG_PATH"
-    fi
+    if [ $__BENCH_CONSENSUS_IMPL == "dxraft" ] ; then
+		cmd="$cmd -Ddxraft.config=$__SERVER_LIST_OR_CONFIG_PATH"
+    else
+		cmd="$cmd -Dservers=$__SERVER_LIST_OR_CONFIG_PATH"
+	fi
 
 	if [ "$__SAVE_HISTORY" = true  ] ; then
 		cmd="$cmd -Dhistory=$__BENCH_OUT_RESULT_DIR/history.csv"

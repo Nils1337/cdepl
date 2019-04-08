@@ -4,8 +4,11 @@ source "app/dxraft"
 source "app/consul"
 source "app/zookeeper"
 source "app/cons-bench"
+source "app/etcd"
+
 CONSUL_PORT=8500
 ZK_PORT=2181
+ETCD_PORT=2379
 
 
 _cdepl_run_application()
@@ -162,6 +165,27 @@ _cdepl_run_application()
         done
 
         cdepl_app_cons_bench_init "$(cdepl_cluster_application_install_dir)/cons-bench" "consul" "$thread_count" "$write_distribution" "$iteration_count" "$read_percentage" "$server_list" "$save_history"
+
+    elif [ $system == "etcd" ] ; then
+
+        # Initialize etcd deployment
+        cdepl_app_etcd_init "$(cdepl_cluster_application_install_dir)/etcd"
+
+        # Kill any still running instances from previous deployments
+        cdepl_app_etcd_cleanup 0 $(($server_count - 1))
+
+        # Start all nodes
+        cdepl_app_etcd_start 0 $(($server_count - 1))
+
+        cdepl_app_etcd_wait_started 0 $(($server_count - 1))
+
+        local server_list=""
+
+        for node in $(seq 0 $(($server_count - 1))); do
+            server_list="$server_list$(cdepl_cluster_resolve_node_to_ip $node):$ETCD_PORT,"
+        done
+
+        cdepl_app_cons_bench_init "$(cdepl_cluster_application_install_dir)/cons-bench" "etcd" "$thread_count" "$write_distribution" "$iteration_count" "$read_percentage" "$server_list" "$save_history"
 
     fi
 
