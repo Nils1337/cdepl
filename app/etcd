@@ -83,8 +83,8 @@ __cdepl_app_etcd_start()
 	# Delete etcd's previous data directory
 	util_log "[$node][etcd] Deleting etcd data directory"
 	cdepl_cluster_node_cmd "$node" "rm -rf $__ETCD_DATA_DIR"
-
 	cdepl_cluster_node_cmd $node "mkdir -p $__ETCD_DATA_DIR"
+	
 	cdepl_cluster_node_cmd $node "mkdir -p $__ETCD_OUT_PATH"
 
 	local cmd="nohup ${__ETCD_PATH}/etcd --name node$node --initial-cluster $server_list --initial-cluster-state new --initial-advertise-peer-urls http://$ip:$__ETCD_PEER_PORT --listen-peer-urls http://$ip:$__ETCD_PEER_PORT --listen-client-urls http://$ip:$__ETCD_CLIENT_PORT --advertise-client-urls http://$ip:$__ETCD_CLIENT_PORT --data-dir=${__ETCD_DATA_DIR} >> $logfile 2>&1 &"
@@ -139,13 +139,12 @@ __cdepl_app_etcd_wait_started()
 	while true; do
 		echo -n "."
 
-		local success_started=$(cdepl_cluster_node_cmd $node "cat "$logfile" 2> /dev/null | grep 'Starting Consul agent'")
-		local success_running=$(cdepl_cluster_node_cmd $node "cat "$logfile" 2> /dev/null | grep 'Consul agent running!'")
+		local success_running=$(cdepl_cluster_node_cmd $node "cat "$logfile" 2> /dev/null | grep 'embed: ready to serve client requests'")
 		local fail_file=$(cdepl_cluster_node_cmd $node "cat "$logfile" 2> /dev/null | grep 'No such file or directory'")
 		local fail_pid=$(cdepl_cluster_node_cmd $node "cat "$logfile" 2> /dev/null | grep 'FAILED TO WRITE PID'")
 		local fail_started=$(cdepl_cluster_node_cmd $node "cat "$logfile" 2> /dev/null | grep 'SERVER DID NOT START'")
 
-		if [ "$success_started" != "" ] || [ "$success_running" != "" ]; then
+		if [ "$success_running" != "" ]; then
 			local pid=$(cdepl_cluster_node_cmd $node "pgrep -f 'etcd'")
 
 			echo ""
